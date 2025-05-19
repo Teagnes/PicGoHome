@@ -1,22 +1,38 @@
 {
-  "name": "picgotrae",
+  "build": {
+    "mac": {
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "icon": "path/to/your/icon.ico"
+    },
+    "linux": {
+      "icon": "path/to/your/icon.png"
+    }
+  },
+  "name": "picGO",
   "private": true,
   "version": "0.0.0",
   "type": "commonjs",
-    "main": "electron-main.js",
+  "main": "electron-main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron:dev": "electron .",
-    "postinstall": "electron-builder install-app-deps"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "dependencies": {
+    "element-plus": "^2.9.10",
     "vue": "^3.5.13"
   },
+  "description": "视频图片备份工具",
+  "author": "ele",
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
     "electron": "^36.2.1",
+    "electron-builder": "^26.0.12",
     "vite": "^6.3.5"
   }
 }
