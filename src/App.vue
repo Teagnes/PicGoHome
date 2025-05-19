@@ -1,12 +1,10 @@
 <template>
   <div id="app">
-    test
+    <Layout>
+    </Layout>
   </div>
 </template>
 
 <script setup>
+import Layout from './Layout.vue'
 </script>
-
-<style scoped>
-
-</style>
