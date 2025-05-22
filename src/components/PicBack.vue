@@ -1,15 +1,15 @@
 <template>
   <div>
   <div class="mb-4">
-    <el-button type="info" plain>源文件目录</el-button>
+    <el-button type="info" plain @click="handleSelectSource">源文件目录</el-button>
       <el-input v-model="in_source" style="width: 400px"  />
   </div>
   <div class="mb-4">
-    <el-button type="info" plain>仓库目录</el-button>
+    <el-button type="info" plain @click="handleSelectRepo">仓库目录</el-button>
       <el-input v-model="in_repo" style="width: 400px"  />
   </div>
   <div class="mb-4">
-    <el-button type="info" plain>暂存目录</el-button>
+    <el-button type="info" plain @click="handleSelectCache">暂存目录</el-button>
       <el-input v-model="in_cache" style="width: 400px" />
   </div>
   <div class="mb-4">
@@ -43,17 +43,44 @@
 import { ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { computed } from 'vue'
+
 const in_source = ref('')
 const in_repo = ref('')
 const in_cache = ref('')
-const checkList = ref(["1","2",])
+const checkList = ref(["1","2"]);
+
+const handleSelectRepo = async () => {
+  const result = await window.electronApi.openDirectoryDialog();
+  if (result) {
+    const fullPath = await window.electronApi.joinPath(result, 'subfolder');
+    in_repo.value = fullPath;
+  }
+};
+
+const handleSelectCache = async () => {
+  const result = await window.electronApi.openDirectoryDialog();
+  if (result) {
+    const fullPath = await window.electronApi.joinPath(result, '');
+    in_cache.value = fullPath;
+  }
+};
+const handleSelectSource = async () => {
+  const result = await window.electronApi.openDirectoryDialog();
+  if (result) {
+    const fullPath = await window.electronApi.joinPath(result, '');
+    in_source.value = fullPath;
+  }
+};
+
 const handleBackup = () => {
   ElMessageBox.confirm(
     '确定要开始备份吗？',
     '提示',
     { type: 'warning' }
-  ).then(() => {
-    // 这里添加实际的备份逻辑
+  ).then(async () => {
+    // 检查文件是否存在
+    const exists = await window.electronApi.checkFileExists('/path/to/file');
+    console.log('文件存在:', exists);
     console.log('开始备份');
   }).catch(() => {
     console.log('取消备份');
