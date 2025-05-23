@@ -23,7 +23,7 @@
     </el-checkbox-group>
   </div>
   <div class="mb-4">
-    <el-button type="info" plain >过滤筛选</el-button>
+    <el-button type="info" plain @click="handleFilter">过滤筛选</el-button>
     <el-button type="info" plain @click="handleBackup">开始备份</el-button>
   </div>
 
@@ -52,7 +52,7 @@ const checkList = ref(["1","2"]);
 const handleSelectRepo = async () => {
   const result = await window.electronApi.openDirectoryDialog();
   if (result) {
-    const fullPath = await window.electronApi.joinPath(result, 'subfolder');
+    const fullPath = await window.electronApi.joinPath(result, '');
     in_repo.value = fullPath;
   }
 };
@@ -72,6 +72,34 @@ const handleSelectSource = async () => {
   }
 };
 
+const handleFilter = async () => {
+  if (!in_source.value || !in_repo.value||!in_cache.value) {
+    ElMessageBox.warning('请选择源文件目录和仓库目录和暂存目录');
+    return;
+  }
+  // 假设这里有一个获取源目录文件列表的 IPC 方法
+  const sourceFiles = await window.electronApi.getFilesInDirectory(in_source.value);
+  const repoFiles = await window.electronApi.getFilesInDirectory(in_repo.value);
+  console.log(sourceFiles);
+  console.log(repoFiles)  
+  const newTableData = [];
+  sourceFiles.forEach((sourceFile, index) => {
+    const repoFile = repoFiles.find(file => file.name === sourceFile.name);
+    const checkResult = repoFile ? (sourceFile.md5 === repoFile.md5 ? '完全相同' : '仅文件名相同') : '新文件';
+    newTableData.push({
+      index: index + 1,
+      name: sourceFile.name,
+      path: sourceFile.path,
+      size: sourceFile.size,
+      exists: !!repoFile,
+      sourceMd5: sourceFile.md5,
+      targetMd5: repoFile?.md5 || '',
+      check: checkResult
+    });
+  });
+  tableData.value = newTableData;
+};
+
 const handleBackup = () => {
   ElMessageBox.confirm(
     '确定要开始备份吗？',
@@ -88,10 +116,8 @@ const handleBackup = () => {
 };
 
 const tableData = ref([
-  // 示例数据，可根据实际情况修改
-  { index: 1, name: 'example.txt', path: '/path/to/file', size: '10KB', exists: true, sourceMd5: 'abc123', targetMd5: 'def456', check: '仅文件名相同' },
-  { index: 2, name: 'example2.txt', path: '/path/to/file2', size: '20KB', exists: false, sourceMd5: 'xyz789', targetMd5: '', check: '新文件' },
-  { index: 3, name: 'example3.txt', path: '/path/to/file3', size: '30KB', exists: true, sourceMd5: 'uvw012', targetMd5: 'uvw012', check: '完全相同' }
+  // 初始化数据，可根据实际情况修改
+  
 ]);
 const filteredTableData = computed(() => {
   return tableData.value.filter(item => checkList.value.includes(item.check === '仅文件名相同' ? '1' : item.check === '完全相同' ? '2' : item.check === '新文件' ? '3' : ''));

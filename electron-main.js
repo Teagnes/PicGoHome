@@ -46,6 +46,35 @@ app.whenReady().then(() => {
     });
 });
 
+ipcMain.handle('get-files-in-directory', async (event, dirPath) => {
+  const fs = require('fs');
+  const path = require('path');
+  const files = [];
+  
+  function traverseDirectory(currentPath) {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name);
+      
+      if (entry.isDirectory()) {
+        traverseDirectory(fullPath);
+      } else {
+        const stats = fs.statSync(fullPath);
+        files.push({
+          name: entry.name,
+          path: fullPath,
+          size: stats.size,
+          md5: '' // 这里需要额外的库来计算 MD5
+        });
+      }
+    }
+  }
+  
+  traverseDirectory(dirPath);
+  return files;
+});
+
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
 });
