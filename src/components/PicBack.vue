@@ -22,9 +22,18 @@
   </div>
   <div class="mb-4">
     <el-checkbox-group v-model="checkList">
-      <el-checkbox label="仅文件名相同" value="1" />
-      <el-checkbox label="完全相同" value="2" />
-      <el-checkbox label="新文件" value="3" />
+      <div>
+        <el-checkbox label="仅文件名相同" value="1" />  
+        <el-text>[ {{ fileNameMatchCount }} ] </el-text>
+      </div>
+      <div>
+        <el-checkbox label="完全相同" value="2" />
+        <el-text> [  {{ exactMatchCount }} ]</el-text>
+      </div>
+      <div>
+        <el-checkbox label="新文件" value="3" />
+        <el-text>  [  {{ newFileCount }}  ]  </el-text>
+      </div>
     </el-checkbox-group>
   </div>
   <div class="mb-4">
@@ -136,7 +145,17 @@ const tableData = ref([
   // 初始化数据，可根据实际情况修改
   
 ]);
-const filteredTableData = computed(() => {
+const fileNameMatchCount = computed(() => {
+    return tableData.value.filter(item => item.check === '仅文件名相同').length;
+  });
+  const exactMatchCount = computed(() => {
+    return tableData.value.filter(item => item.check === '完全相同').length;
+  });
+  const newFileCount = computed(() => {
+    return tableData.value.filter(item => item.check === '新文件').length;
+  });
+
+  const filteredTableData = computed(() => {
   return tableData.value.filter(item => checkList.value.includes(item.check === '仅文件名相同' ? '1' : item.check === '完全相同' ? '2' : item.check === '新文件' ? '3' : ''));
 });
 </script>
