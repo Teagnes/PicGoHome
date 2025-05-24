@@ -10,7 +10,7 @@
       "icon": "path/to/your/icon.png"
     }
   },
-  "name": "picGO",
+  "name": "PicGoHome",
   "private": true,
   "version": "0.0.0",
   "type": "commonjs",

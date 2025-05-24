@@ -1,7 +1,7 @@
 <template>
     <div class="common-layout">
       <el-container>
-        <el-header>PicGO 备份照片视频小工具</el-header>
+        <el-header>PicGoHome 辅助备份照片视频小工具</el-header>
         <el-container>
           <el-main>
             <pic-back>
