@@ -55,7 +55,7 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox ,ElMessage } from 'element-plus'
 import { computed } from 'vue'
 
 const in_source = ref('')
@@ -135,9 +135,11 @@ const handleBackup = () => {
         console.error(`复制文件 ${file.name} 时出错:`, error);
       }
     }
-    ElMessageBox.success('备份完成');
-  }).catch(() => {
-    console.log('取消备份');
+    
+    // ... existing code ...
+    ElMessage.success('备份完成');
+  }).catch((e) => {
+    console.log('取消备份 {}', e);
   });
 };
 
