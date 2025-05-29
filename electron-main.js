@@ -75,6 +75,17 @@ ipcMain.handle('get-files-in-directory', async (event, dirPath) => {
   return files;
 });
 
+ipcMain.handle('copyFile', async (event, sourcePath, targetPath) => {
+  const fs = require('fs');
+  try {
+    await fs.promises.copyFile(sourcePath, targetPath);
+    return { success: true };
+  } catch (error) {
+    console.error('复制文件时出错:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
 });
