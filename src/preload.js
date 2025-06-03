@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('electronApi', {
   joinPath: (...paths) => ipcRenderer.invoke('join-path', ...paths),
   getFilesInDirectory: (dirPath) => ipcRenderer.invoke('get-files-in-directory', dirPath),
   copyFile: (sourcePath, targetPath) => ipcRenderer.invoke('copyFile', sourcePath, targetPath),
+  checkSouceFlie: (sourcePath, targetPath) => ipcRenderer.invoke('checkSouceFlie', sourcePath, targetPath),
   // 其他 API 可按需添加
 })

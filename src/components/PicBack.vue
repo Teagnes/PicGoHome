@@ -58,9 +58,9 @@ import { ref } from 'vue'
 import { ElMessageBox ,ElMessage} from 'element-plus'
 import { computed } from 'vue'
 
-const in_source = ref('')
-const in_repo = ref('')
-const in_cache = ref('')
+const in_source = ref('/Users/nerv/Desktop/备份20250513')
+const in_repo = ref('/Users/nerv/Library/CloudStorage/OneDrive-个人/视频备份')
+const in_cache = ref('/Users/nerv/Desktop/20250521_tmp')
 const checkList = ref(["1","2"]);
 
 const handleSelectRepo = async () => {
@@ -91,32 +91,35 @@ const handleFilter = async () => {
     ElMessageBox.warning('请选择源文件目录和仓库目录和暂存目录');
     return;
   }
-  // 假设这里有一个获取源目录文件列表的 IPC 方法
-  const sourceFiles = await window.electronApi.getFilesInDirectory(in_source.value);
-  const repoFiles = await window.electronApi.getFilesInDirectory(in_repo.value);
-  console.log(sourceFiles);
-  console.log(repoFiles)  
   const newTableData = [];
-  sourceFiles.forEach((sourceFile, index) => {
-    const repoFile = repoFiles.find(file => file.name === sourceFile.name);
-    const checkResult = repoFile ? (sourceFile.md5 === repoFile.md5 ? '完全相同' : '仅文件名相同') : '新文件';
+  // await window.electronApi.copyFile(sourcePath, targetPath);
+
+  const sourceFileCh = await window.electronApi.checkSouceFlie(in_source.value, in_repo.value);
+  console.log('soueceFileCh : '+sourceFileCh)
+  sourceFileCh.forEach((item,index)=>{
+  console.log('soueceFileCh : '+item)
+
     newTableData.push({
       index: index + 1,
-      name: sourceFile.name,
-      path: sourceFile.path,
-      size: sourceFile.size,
-      exists: !!repoFile,
-      sourceMd5: sourceFile.md5,
-      targetMd5: repoFile?.md5 || '',
-      check: checkResult
+      name: item.name,
+      path: item.path,
+      size: item.size,
+      exists:item.fileCheckFlag,
+      sourceMd5: item.sourceMd5,
+      targetMd5: item.targetMd5,
+      check: item.fileCheckMsg
     });
-  });
+  })
+  // console.log('soueceFileCh : '+sourceFileCh)
+  // 假设这里有一个获取源目录文件列表的 IPC 方法
+
   tableData.value = newTableData;
 };
 
 const handleBackup = () => {
+  const filteredFiles = filteredTableData.value.filter(file => file.check === '新文件' );
   ElMessageBox.confirm(
-    '确定要开始备份吗？',
+    '确定要开始备份吗？共计备份文件：' + filteredFiles.length + ' 个',
     '提示',
     { type: 'warning' }
   ).then(async () => {
