@@ -2,7 +2,7 @@
   <div>
     <div ><el-text class=".mb-4" size="large">1. 准备好要备份的图片和视频，复制到源文件目录下</el-text></div>
     <div ><el-text class=".mb-4" size="large">2. 设置好三个目录路径</el-text></div>
-    <div ><el-text  size="large">3. 选择复制逻辑，按照过滤逻辑过滤后的文件复制到暂存目录下，</el-text></div>
+    <div ><el-text  size="large">3. 新文件会被复制到暂存目录下</el-text></div>
     <div class="mb-4"><el-text class=".mb-4" size="large">4. 手动全选文件复制到你的仓库文件目录下</el-text></div>
 
   <div class="mb-4">
@@ -55,12 +55,12 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import { ElMessageBox ,ElMessage } from 'element-plus'
+import { ElMessageBox ,ElMessage} from 'element-plus'
 import { computed } from 'vue'
 
-const in_source = ref('')
-const in_repo = ref('')
-const in_cache = ref('')
+const in_source = ref('/Users/nerv/Desktop/备份20250513')
+const in_repo = ref('/Users/nerv/Library/CloudStorage/OneDrive-个人/视频备份')
+const in_cache = ref('/Users/nerv/Desktop/20250521_tmp')
 const checkList = ref(["1","2"]);
 
 const handleSelectRepo = async () => {
@@ -91,32 +91,35 @@ const handleFilter = async () => {
     ElMessageBox.warning('请选择源文件目录和仓库目录和暂存目录');
     return;
   }
-  // 假设这里有一个获取源目录文件列表的 IPC 方法
-  const sourceFiles = await window.electronApi.getFilesInDirectory(in_source.value);
-  const repoFiles = await window.electronApi.getFilesInDirectory(in_repo.value);
-  console.log(sourceFiles);
-  console.log(repoFiles)  
   const newTableData = [];
-  sourceFiles.forEach((sourceFile, index) => {
-    const repoFile = repoFiles.find(file => file.name === sourceFile.name);
-    const checkResult = repoFile ? (sourceFile.md5 === repoFile.md5 ? '完全相同' : '仅文件名相同') : '新文件';
+  // await window.electronApi.copyFile(sourcePath, targetPath);
+
+  const sourceFileCh = await window.electronApi.checkSouceFlie(in_source.value, in_repo.value);
+  console.log('soueceFileCh : '+sourceFileCh)
+  sourceFileCh.forEach((item,index)=>{
+  console.log('soueceFileCh : '+item)
+
     newTableData.push({
       index: index + 1,
-      name: sourceFile.name,
-      path: sourceFile.path,
-      size: sourceFile.size,
-      exists: !!repoFile,
-      sourceMd5: sourceFile.md5,
-      targetMd5: repoFile?.md5 || '',
-      check: checkResult
+      name: item.name,
+      path: item.path,
+      size: item.size,
+      exists:item.fileCheckFlag,
+      sourceMd5: item.sourceMd5,
+      targetMd5: item.targetMd5,
+      check: item.fileCheckMsg
     });
-  });
+  })
+  // console.log('soueceFileCh : '+sourceFileCh)
+  // 假设这里有一个获取源目录文件列表的 IPC 方法
+
   tableData.value = newTableData;
 };
 
 const handleBackup = () => {
+  const filteredFiles = filteredTableData.value.filter(file => file.check === '新文件' );
   ElMessageBox.confirm(
-    '确定要开始备份吗？',
+    '确定要开始备份吗？共计备份文件：' + filteredFiles.length + ' 个',
     '提示',
     { type: 'warning' }
   ).then(async () => {
@@ -124,22 +127,22 @@ const handleBackup = () => {
       ElMessageBox.warning('请选择源文件目录、仓库目录和暂存目录');
       return;
     }
-    const filteredFiles = filteredTableData.value.filter(file => file.check === '仅文件名相同' || file.check === '完全相同');
+    const filteredFiles = filteredTableData.value.filter(file => file.check === '新文件' );
     for (const file of filteredFiles) {
       const sourcePath = file.path;
       const targetPath = await window.electronApi.joinPath(in_cache.value, file.name);
       try {
+        console.log(`正在复制文件 ${file.name} 到 ${targetPath}`);
         await window.electronApi.copyFile(sourcePath, targetPath);
         console.log(`已复制文件 ${file.name} 到 ${targetPath}`);
       } catch (error) {
         console.error(`复制文件 ${file.name} 时出错:`, error);
       }
     }
-    
-    // ... existing code ...
-    ElMessage.success('备份完成');
-  }).catch((e) => {
-    console.log('取消备份 {}', e);
+    // ElMessageBox.success('备份完成');
+    ElMessage('备份完成')
+  }).catch(() => {
+    console.log('取消备份');
   });
 };
 
