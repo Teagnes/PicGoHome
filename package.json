@@ -21,7 +21,7 @@
     "preview": "vite preview",
     "electron:dev": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "vite build && electron-builder build --config electron-builder.json"
   },
   "dependencies": {
     "element-plus": "^2.9.10",

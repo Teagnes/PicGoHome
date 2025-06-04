@@ -1,0 +1,6 @@
+{
+    "files": ["./electron-main.js", "./dist","./src","./assets"],
+    "mac": {
+      "icon": "assets/icon.icns"
+    }
+  }

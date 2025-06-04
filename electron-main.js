@@ -8,6 +8,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({ 
         width: 800, 
         height: 600, 
+        fullscreenable: true,
+        fullscreen: true,
         webPreferences: { 
             contextIsolation: true, // 启用上下文隔离
             nodeIntegration: false, // 禁用 Node.js 集成
@@ -15,7 +17,11 @@ function createWindow() {
         }
     });
 
-    mainWindow.loadURL('http://localhost:5173');
+    // mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadFile('./dist/index.html')
+    // mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+    // mainWindow.loadURL(`file://${path.join(__dirname, '../dist/index.html')}`); 
+
 
     mainWindow.on('closed', function () {
         mainWindow = null;
